@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+
+<body>
+
+<h1>week : {{days[0].week_number}}</h1>
+<h1>from : {{days[0].date}} till : {{days[-1].date}}</h1>
+{% for day in days %}
+	<p>{{ day.weekday}}</p>
+  <p>lunch :  {{ day.lunch }}</p>
+  <p>dinner : {{ day.dinner }}</p>
+{% endfor %}
+
+<form action="/" >
+<button >На сьогодні</button>
+</form>
+
+</body>
