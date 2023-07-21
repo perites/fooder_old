@@ -4,7 +4,7 @@ import datetime
 from flask import Flask, render_template, request, redirect
 
 from databases import Dish
-from work_with_db import ManageTables
+from work_with_db import ManageDay, ManageDish
 from decorators import error_catcher
 
 
@@ -19,67 +19,58 @@ logging.basicConfig(format='%(levelname)s: %(asctime)s - %(message)s', datefmt='
 @app.route("/")
 @error_catcher
 def home(weekday=None):
-    date = datetime.date.today()
+    md = ManageDay(datetime.date.today())
     if weekday:
-        week = ManageTables().make_week(date)
+        week = md.make_week()
         if 0 < weekday < 8:
-            date = week[weekday - 1]
+            md = ManageDay(week[weekday - 1])
 
-    day = ManageTables().menu_for_day(date)
-    return render_template("main.html", day=day)
+    return render_template("main.html", day=md.day)
 
 
 @app.route("/menu/<date>/")
 @error_catcher
 def menu(date):
     date_format = "%Y-%m-%d"
-    date = datetime.datetime.strptime(date, date_format).date()
-    days = ManageTables().days_of_week(date)
-    return render_template("menu.html", days=days)
+    md = ManageDay(datetime.datetime.strptime(date, date_format).date())
+    return render_template("menu.html", days=md.days_of_week())
 
 
 @app.route("/dish/<dish_name>/")
 @error_catcher
 def dish(dish_name):
-    ingr = ManageTables().get_ingredients(dish_name)
-    return render_template("dish.html", ingr=ingr)
+    dish = ManageDish(dish_name)
+    return render_template("dish.html", ingr=dish.get_ingredients())
 
 
 @app.route("/list/<date>/")
 @error_catcher
 def list(date):
     date_format = "%Y-%m-%d"
-    date = datetime.datetime.strptime(date, date_format).date()
-    day = ManageTables().menu_for_day(date)
-    ingr_list = [ingr for ingr in day.ingredients]
-    return render_template("list.html", ingr_list=ingr_list, day=day)
+    md = ManageDay(datetime.datetime.strptime(date, date_format).date())
+    ingr_list = [ingr for ingr in md.day.ingredients]
+    return render_template("list.html", ingr_list=ingr_list, day=md.day)
 
 
 @app.route("/menu/edit/<date>/", methods=["GET"])
 @error_catcher
 def menu_edit_get(date):
     date_format = "%Y-%m-%d"
-    date = datetime.datetime.strptime(date, date_format).date()
-
-    days = ManageTables().days_of_week(date)
-    dishes = Dish.select()
-
-    return render_template("menu_edit.html", days=days, dishes=dishes)
+    md = ManageDay(datetime.datetime.strptime(date, date_format).date())
+    return render_template("menu_edit.html", days=md.days_of_week(), dishes=Dish.select())
 
 
 @app.route("/menu/edit/<date>", methods=["POST"])
 @error_catcher
 def menu_edit_post(date):
-
     date_format = "%Y-%m-%d"
-    date_obj = datetime.datetime.strptime(date, date_format).date()
-
+    md = ManageDay(datetime.datetime.strptime(date, date_format).date())
     forms = ['dish_lunch', 'dish_dinner', 'dish_lunch_delete', 'dish_dinner_delete']
 
     for form in forms:
         try:
             selected_dish = request.form[form]
-            ManageTables().change_day(date_obj, selected_dish=selected_dish, form=form)
+            md.change_day(selected_dish=selected_dish, form=form)
         except Exception:
             pass
 

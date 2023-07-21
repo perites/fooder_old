@@ -5,13 +5,13 @@ from databases import DayMenu, Dish
 
 
 class Day():
-    def __init__(self, day):
-        self.date = day.date
-        self.week_number = day.date.isocalendar().week
-        self.weekday = self.weekday_name(day.date.isocalendar().weekday)
-        self.lunch = self.get_dish_objects(json.loads(day.lunch))
-        self.dinner = self.get_dish_objects(json.loads(day.dinner))
-        self.ingredients = self.get_ingredients_for_day(day)
+    def __init__(self, day_obj):
+        self.date = day_obj.date
+        self.week_number = day_obj.date.isocalendar().week
+        self.weekday = self.weekday_name(day_obj.date.isocalendar().weekday)
+        self.lunch = self.get_dish_objects(json.loads(day_obj.lunch))
+        self.dinner = self.get_dish_objects(json.loads(day_obj.dinner))
+        self.ingredients = self.get_ingredients_for_day(day_obj)
 
     def weekday_name(self, weekday_number):
         weekday_name = {
@@ -45,65 +45,63 @@ class Day():
         return list(ingredients.items())
 
     def get_dish_objects(self, list_dishes):
-        dishes = []
-        for dish_name in list_dishes:
-            dish = Dish.get(Dish.name == dish_name)
-            dishes.append(dish)
-        return dishes
+        return [ManageDish(dish_name).dish_obj for dish_name in list_dishes]
 
 
-class ManageTables():
+class ManageDish():
+    def __init__(self, dish_name):
+        self.dish_obj = Dish.get(Dish.name == dish_name)
 
-    def make_week(self, date):
+    def get_ingredients(self):
+        return self.dish_obj.ingredients
+
+
+class ManageDay():
+    def __init__(self, date):
+        try:
+            self.day_obj = DayMenu.get(DayMenu.date == date)
+        except DayMenu.DoesNotExist:
+            self.day_obj = DayMenu.create(date=date, lunch=json.dumps([]), dinner=json.dumps([]))
+
+        self.day = Day(self.day_obj)
+
+    def make_week(self):
         week = []
-        week_number = date.isocalendar().week
+        week_number = self.day_obj.date.isocalendar().week
 
         for n in range(-7, 8):
-            new_date = date + datetime.timedelta(days=n)
+            new_date = self.day_obj.date + datetime.timedelta(days=n)
             if new_date.isocalendar().week == week_number:
                 week.append(new_date)
 
         week.sort()
         return week
 
-    def days_of_week(self, date):
-        week = self.make_week(date)
-        return [self.menu_for_day(day_date) for day_date in week]
+    def days_of_week(self):
+        return [ManageDay(day_date).day for day_date in self.make_week()]
 
-    def menu_for_day(self, date):
-        try:
-            day = DayMenu.get(DayMenu.date == date)
-        except DayMenu.DoesNotExist:
-            day = DayMenu.create(date=date, lunch=json.dumps([]), dinner=json.dumps([]))
-        return Day(day)
-
-    def get_ingredients(self, dish_name):
-        dish = Dish.get(Dish.name == dish_name)
-        return dish.ingredients
-
-    def change_day(self, date, selected_dish, form):
-        day = DayMenu.get(DayMenu.date == date)
+    def change_day(self, selected_dish, form):
         if form == 'dish_lunch':
-            lunch_dishes = json.loads(day.lunch)
+            lunch_dishes = json.loads(self.day_obj.lunch)
             lunch_dishes.append(selected_dish)
-            day.lunch = json.dumps(lunch_dishes)
+            self.day_obj.lunch = json.dumps(lunch_dishes)
 
         elif form == 'dish_dinner':
-            dinner_dishes = json.loads(day.dinner)
+            dinner_dishes = json.loads(self.day_obj.dinner)
             dinner_dishes.append(selected_dish)
-            day.dinner = json.dumps(dinner_dishes)
+            self.day_obj.dinner = json.dumps(dinner_dishes)
 
         elif form == 'dish_lunch_delete':
-            lunch_dishes = json.loads(day.lunch)
+            lunch_dishes = json.loads(self.day_obj.lunch)
             lunch_dishes.remove(selected_dish)
-            day.lunch = json.dumps(lunch_dishes)
+            self.day_obj.lunch = json.dumps(lunch_dishes)
 
         elif form == 'dish_dinner_delete':
-            dinner_dishes = json.loads(day.dinner)
+            dinner_dishes = json.loads(self.day_obj.dinner)
             dinner_dishes.remove(selected_dish)
-            day.dinner = json.dumps(dinner_dishes)
+            self.day_obj.dinner = json.dumps(dinner_dishes)
 
-        day.save()
+        self.day_obj.save()
 
 
 # import random
