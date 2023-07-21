@@ -1,65 +1,17 @@
 import datetime
 import json
-from databases import *
-import random
 
+from databases import DayMenu, Dish
 
-# def see_all():
-#     # ingrs = Ingridient.select()
-#     # # if not ingrs:
-#     # #     print(ingrs)
-#     # for ingr in ingrs:
-#     #     print(ingr.name, "--- ingr")
-
-#     dishes = Dish.select()
-#     for dish in dishes:
-#         print("\n", dish.name, "--- dish")
-#         print("recept:")
-#         recept = dish.ingredients
-#         for ingr in recept:
-#             print(ingr.ingredient.name, ingr.hot_much_ingr)
-
-
-# see_all()
-# dishes = ["mashed potato", "chicken", "salat", "kotlet"]
-# lunch = ["salat", "kotlet"]
-# dinner = ["mashed potato", "chicken"]
-
-
-# def create_tetttt():
-#     for n in range(-3, 12):
-#         menu_for_day_l = [random.choice(dishes), random.choice(dishes)]
-#         menu_for_day_d = [random.choice(dishes), random.choice(dishes)]
-#         DayMenu.create(date=datetime.date.today() + datetime.timedelta(days=n), lunch=json.dumps(menu_for_day_l), dinner=json.dumps(menu_for_day_d))
-
-
-# menu_for_day_l = random.choice(dishes)
-# menu_for_day_d = random.choice(dishes)
-# DayMenu.create(date=datetime.date.today() + datetime.timedelta(days=-2), lunch=json.dumps(menu_for_day_l), dinner=json.dumps(menu_for_day_d))
-
-
-# create_tetttt()
-
-
-# def recept_for_weeks():
-#     week = []
-#     for x in DayMenu.select():
-#         if x.date not in week:
-#             print("\nnew week")
-#             week = make_week(x.date)
-
-#         print("\nweekday : ", x.date.isocalendar().weekday, "\nmenu lunch:", x.lunch, "\nmenu dinner :", x.dinner)
-
-
-# recept_for_weeks()
 
 class Day():
-    def __init__(self, date, lunch, dinner):
-        self.date = date
-        self.week_number = date.isocalendar().week
-        self.weekday = self.weekday_name(date.isocalendar().weekday)
-        self.lunch = json.loads(lunch)
-        self.dinner = json.loads(dinner)
+    def __init__(self, day):
+        self.date = day.date
+        self.week_number = day.date.isocalendar().week
+        self.weekday = self.weekday_name(day.date.isocalendar().weekday)
+        self.lunch = self.get_dish_objects(json.loads(day.lunch))
+        self.dinner = self.get_dish_objects(json.loads(day.dinner))
+        self.ingredients = self.get_ingredients_for_day(day)
 
     def weekday_name(self, weekday_number):
         weekday_name = {
@@ -73,113 +25,132 @@ class Day():
 
         return weekday_name[weekday_number]
 
+    def get_ingredients_for_day(self, day):
+        ingredients = {}
+        if self.lunch:
+            for dish in self.lunch:
+                for ingr in dish.ingredients:
+                    if ingr not in ingredients and ingr.ingredient.where_to_buy != "Delivery":
+                        ingredients[ingr] = ingr.hot_much_ingr
+                    else:
+                        ingredients[ingr] += "+" + ingr.hot_much_ingr
+        if self.dinner:
+            for dish in self.dinner:
+                for ingr in dish.ingredients:
+                    if ingr not in ingredients and ingr.ingredient.where_to_buy != "Delivery":
+                        ingredients[ingr] = ingr.hot_much_ingr
+                    else:
+                        ingredients[ingr] += "+" + ingr.hot_much_ingr
 
-def make_week(date):
-    week = []
-    week_number = date.isocalendar().week
+        return list(ingredients.items())
 
-    for n in range(-7, 8):
-        new_date = date + datetime.timedelta(days=n)
-        if new_date.isocalendar().week == week_number:
-            week.append(new_date)
-
-    week.sort()
-    return week
-
-
-def days_of_week(date):
-    week = make_week(date)
-    return [menu_for_day(day_date) for day_date in week]
-
-
-def menu_for_day(date):
-    day = DayMenu.get(DayMenu.date == date)
-    return Day(day.date, day.lunch, day.dinner)
-
-
-def get_ingredients(dish_name):
-    dish = Dish.get(Dish.name == dish_name)
-    return dish.ingredients
-
-# date = "2023-07-20"
-# date_format = "%Y-%m-%d"
-# date = datetime.datetime.strptime(date, date_format).date()
-# days_of_week(date)
-# date = "2023-07-20"
-# date_format = "%Y-%m-%d"
-# date = datetime.datetime.strptime(date, date_format)
-# print(date, "---date")
-# print(datetime.date.today())
-# print(date == datetime.date.today())
-# print(type(date.date()), type(datetime.date.today()))
-# a = menu_for_day(datetime.date.today())
-# print(a.lunch)
+    def get_dish_objects(self, list_dishes):
+        dishes = []
+        for dish_name in list_dishes:
+            dish = Dish.get(Dish.name == dish_name)
+            dishes.append(dish)
+        return dishes
 
 
-# recept_for_week(datetime.date.today())
-# print("\n", x.date)
-# print(x.lunch, "--- lunch")
-# print(x.dinner, "--- dinner")
-#     # print(x.lunch)
-#     # print(type(json.dumps(["salat", "kotlet"])))
-#     a = ["salat", "kotlet"]
-#     b = json.dumps(a)
-#     print(b)
-#     print(json.loads(b))
-# print(x.date, json.loads(x.lunch)[1], json.loads(x.dinner)[0])
-# dishes = Dish.select().where(Dish.name == json.loads(x.lunch)[1])
-# for dish in dishes:
-#     print("\n", dish.name, "--- dish")
-#     print("recept:")
-#     recept = dish.ingredients
-#     for ingr in recept:
-#         print(ingr.ingredient.name, ingr.hot_much_ingr)
-# db.create_tables([Ingridient, Dish, IngrToDish, DayMenu])
-# # Ingridient.create(name="onoin", where_to_buy="Kredens")
-# # Ingridient.drop_table()
-# import date
+class ManageTables():
+
+    def make_week(self, date):
+        week = []
+        week_number = date.isocalendar().week
+
+        for n in range(-7, 8):
+            new_date = date + datetime.timedelta(days=n)
+            if new_date.isocalendar().week == week_number:
+                week.append(new_date)
+
+        week.sort()
+        return week
+
+    def days_of_week(self, date):
+        week = self.make_week(date)
+        return [self.menu_for_day(day_date) for day_date in week]
+
+    def menu_for_day(self, date):
+        try:
+            day = DayMenu.get(DayMenu.date == date)
+        except DayMenu.DoesNotExist:
+            day = DayMenu.create(date=date, lunch=json.dumps([]), dinner=json.dumps([]))
+        return Day(day)
+
+    def get_ingredients(self, dish_name):
+        dish = Dish.get(Dish.name == dish_name)
+        return dish.ingredients
+
+    def change_day(self, date, selected_dish, form):
+        day = DayMenu.get(DayMenu.date == date)
+        if form == 'dish_lunch':
+            lunch_dishes = json.loads(day.lunch)
+            lunch_dishes.append(selected_dish)
+            day.lunch = json.dumps(lunch_dishes)
+
+        elif form == 'dish_dinner':
+            dinner_dishes = json.loads(day.dinner)
+            dinner_dishes.append(selected_dish)
+            day.dinner = json.dumps(dinner_dishes)
+
+        elif form == 'dish_lunch_delete':
+            lunch_dishes = json.loads(day.lunch)
+            lunch_dishes.remove(selected_dish)
+            day.lunch = json.dumps(lunch_dishes)
+
+        elif form == 'dish_dinner_delete':
+            dinner_dishes = json.loads(day.dinner)
+            dinner_dishes.remove(selected_dish)
+            day.dinner = json.dumps(dinner_dishes)
+
+        day.save()
 
 
-# def resrart():
-#     DayMenu.drop_table()
-#     db.create_tables([Ingridient, Dish, IngrToDish, DayMenu])
+# import random
+# def create_tetttt():
+#     dishes = ["mashed potato", "chicken", "salat", "kotlet"]
+#     for n in range(-4, 11):
+#         menu_for_day_l = [random.choice(dishes), random.choice(dishes)]
+#         menu_for_day_d = [random.choice(dishes), random.choice(dishes)]
+#         DayMenu.create(date=datetime.date.today() + datetime.timedelta(days=n), lunch=json.dumps(menu_for_day_l), dinner=json.dumps(menu_for_day_d))
+
+# create_tetttt()
 
 
-# resrart()
-# # Dish.create(name="kotlet")
-# # IngrToDish.create(ingredient=Ingridient.get(Ingridient.name == "onoin"), hot_much_ingr="0.5 kg", dish=Dish.get(Dish.name == "kotlet"))
+# def recept_for_weeks():
+#     week = []
+#     for x in DayMenu.select():
+#         if x.date not in week:
+#             print("\nnew week")
+#             week = ManageTables().make_week(x.date)
+
+#         date_format = "%Y-%m-%d"
+
+#         # if x.date == datetime.datetime.strptime("2023-07-21", date_format).date():
+#         #     lunch_dishes = json.loads(x.lunch)
+#         #     # lunch_dishes.pop(2)
+#         #     # lunch_dishes.pop(2)
+#         #     x.lunch = json.dumps(lunch_dishes)
+#         #     x.save()
+
+#         print("\nweekday : ", x.date.isocalendar().weekday, "\nmenu lunch:", x.lunch, "\nmenu dinner :", x.dinner)
+
+# recept_for_weeks()
+
+
+# def see_all():
+#     ingrs = Ingridient.select()
+#     if not ingrs:
+#         print(ingrs)
+#     for ingr in ingrs:
+#         print(ingr.name, "--- ingr")
+
+#     dishes = Dish.select()
+#     for dish in dishes:
+#         print("\n", dish.name, "--- dish")
+#         print("recept:")
+#         recept = dish.ingredients
+#         for ingr in recept:
+#             print(ingr.ingredient.name, ingr.hot_much_ingr)
+
 # see_all()
-
-# WeekMenu.create(start_day=date.date())
-# # def create_menu_for_day():
-
-# if week_day_original == 1:
-
-# print(week_day_original)
-
-# for n in range(-7, 8):
-#     print(n)
-
-# next_day = datetime.timedelta(days=0)
-
-# specific_date = datetime.date(2023, 7, 24)
-# a = specific_date + datetime.timedelta(days=0)
-# print(a)
-#
-
-# datetime.timedelta(days=1)
-# iso_year, iso_week, iso_weekday = specific_date.isocalendar()
-# print(specific_date.isocalendar().weekday)
-# iso_year2, iso_week2, iso_weekday2 = ().isocalendar()
-# while iso_week == iso2_week:
-
-# specific_date2 = datetime.date(2023, 7, 30)
-
-# print(specific_date < datetime.date(2023, 7, 31) < specific_date2)
-# iso_year, iso_week, iso_weekday = specific_date2.isocalendar()
-
-# print(f"ISO Year: {iso_year}")
-# print(f"ISO Week: {iso_week}")
-# print(f"ISO Weekday: {iso_weekday}")
-
-# make_week(datetime.date(2023, 7, 24))

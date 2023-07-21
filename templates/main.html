@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+	<title>fooder</title>
 </head>
 <body>
 
@@ -11,21 +11,22 @@
 
 <h2>lunch : </h2>
 {% for dish in day.lunch %}
-	<a href="/dish/{{dish}}"><h3>{{dish}}</h3></a>
+	<a href="/dish/{{dish.name}}"><h3>{{dish.name}}</h3></a>
 {% endfor %}
 
 <h2>dinner : </h2>
 {% for dish in day.dinner %}
-	<a href="/dish/{{dish}}"><h3>{{dish}}</h3></a>
+	<a href="/dish/{{dish.name}}"><h3>{{dish.name}}</h3></a>
 {% endfor %}
 
 
-
-
-<form action="/menu/{{day.date}}" >
-<button >Menu for this weekday</button>
+<form action="/list/{{day.date}}" >
+<button >Сформувати список</button>
 </form>
 
+<form action="/menu/{{day.date}}" >
+<button >Menu for this week</button>
+</form>
 
 
 <form action="/1" >
@@ -49,7 +50,6 @@
 <form action="/7" >
 <button >Sunday  </button>
 </form>
-
 
 <form action="/" >
 <button >На сьогодні</button>

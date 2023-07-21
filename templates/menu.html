@@ -1,21 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+	<title>fooder</title>
 </head>
-
 <body>
 
 <h1>week : {{days[0].week_number}}</h1>
 <h1>from : {{days[0].date}} till : {{days[-1].date}}</h1>
+
+<form action="/menu/edit/{{days[0].date}}" >
+<button >Редагувати</button>
+</form>
+
+
 {% for day in days %}
-	<p>{{ day.weekday}}</p>
-  <p>lunch :  {{ day.lunch }}</p>
-  <p>dinner : {{ day.dinner }}</p>
+
+	<h3>{{ day.weekday}}</h3>
+  	<p>lunch :  {% for dish in day.lunch %}
+  		<a href="/dish/{{dish.name}}">{{ dish.name }}</a>, 
+  	{% endfor %}
+  	</p>
+ 	
+  	<p>dinner :  {% for dish in day.dinner %}
+  		<a href="/dish/{{dish.name}}">{{ dish.name }}</a>, 
+  	{% endfor %}
+  	</p>
+
+
+<form action="/list/{{day.date}}" >
+<button >Сформувати список</button>
+</form>
+
 {% endfor %}
+
 
 <form action="/" >
 <button >На сьогодні</button>
 </form>
 
 </body>
+</html>

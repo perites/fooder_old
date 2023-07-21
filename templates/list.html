@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>fooder</title>
+</head>
+<body>
+
+<h2>Ingredients for {{day.date}}</h2>
+{% for ingr  in ingr_list %}
+	<h3>{{ingr[0].ingredient.name}} : {{ingr[1]}}</h3>
+{% endfor %}
+
+</body>
+</html>

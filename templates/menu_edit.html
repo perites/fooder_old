@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>fooder</title>
+</head>
+<body>
+
+<h1>week : {{days[0].week_number}}</h1>
+<h1>from : {{days[0].date}} till : {{days[-1].date}}</h1>
+
+{% for day in days %}
+
+
+	<h3>{{ day.weekday}}</h3>
+	<p>lunch :  {% for dish in day.lunch %}
+  		<a href="/dish/{{dish.name}}">{{ dish.name }}</a>, 
+  	{% endfor %}
+  	</p>
+	   	
+   	<form action="/menu/edit/{{day.date}}" method="POST">
+	    <select name="dish_lunch">
+	    {% for dish in dishes %}
+	        <option value="{{ dish.name }}">{{ dish.name }}</option>
+	    {% endfor %}
+	    </select>
+	    <button type="submit">Записати</button>
+	</form>
+	  
+	<form action="/menu/edit/{{day.date}}" method="POST">
+	    <select name="dish_lunch_delete">
+	    {% for dish in day.lunch %}
+	        <option value="{{ dish.name }}">{{ dish.name }}</option>
+	    {% endfor %}
+	    </select>
+	    <button type="submit">Видалити</button>
+	</form>
+
+
+  	<p>dinner :  {% for dish in day.dinner %}
+  		<a href="/dish/{{dish.name}}">{{ dish.name }}</a>, 
+  	{% endfor %}
+  	</p>
+		
+	<form action="/menu/edit/{{day.date}}" method="POST">
+    	<select name="dish_dinner">
+	    {% for dish in dishes %}
+	        <option value="{{ dish.name }}">{{ dish.name}}</option>
+	    {% endfor %}
+	    </select>
+	    <button type="submit">Записати</button>
+    </form>
+
+	<form action="/menu/edit/{{day.date}}" method="POST">
+	    <select name="dish_dinner_delete">
+	    {% for dish in day.dinner %}
+	        <option value="{{ dish.name }}">{{ dish.name }}</option>
+	    {% endfor %}
+	    </select>
+	    <button type="submit">Видалити</button>
+	</form>
+
+
+{% endfor %}
+
+<form action="/menu/{{days[0].date}}"  method="GET">
+<button >See menu</button>
+</form>
+
+</body>
+</html>

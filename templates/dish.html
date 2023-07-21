@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+	<title>fooder</title>
 </head>
 <body>
-	{% for ingredient in ingr %}
-	<h3>{{ingredient.ingredient.name}} : {{ingredient.hot_much_ingr}}</h3>
-	
+
+{% for ingredient in ingr %}
+	<h3>{{ingredient.ingredient.name}} : {{ingredient.hot_much_ingr}}</h3>	
 {% endfor %}
+
 </body>
 </html>
