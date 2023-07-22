@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>fooder</title>
+</head>
+<body>
+
+<h1>{{day.date}}</h1>
+<h1>{{day.weekday}}</h1>
+<h3>week : {{day.week_number}}</h3>
+
+<h2>lunch : </h2>
+{% for dish in day.lunch %}
+	<a href="/dish/{{dish.name}}"><h3>{{dish.name}}</h3></a>
+{% endfor %}
+
+<h2>dinner : </h2>
+{% for dish in day.dinner %}
+	<a href="/dish/{{dish.name}}"><h3>{{dish.name}}</h3></a>
+{% endfor %}
+
+
+<form action="/list/{{day.date}}" >
+<button >Сформувати список</button>
+</form>
+
+<form action="/menu/{{day.date}}" >
+<button >Menu for this week</button>
+</form>
+
+
+<form action="/day/{{week[0]}}" >
+<button >Monday</button>
+</form>
+<form action="/day/{{week[1]}}" >
+<button >Tuesday </button>
+</form>
+<form action="/day/{{week[2]}}" >
+<button >Wednesday </button>
+</form>
+<form action="/day/{{week[3]}}" >
+<button >Thursday </button>
+</form>
+<form action="/day/{{week[4]}}" >
+<button >Friday </button>
+</form>
+<form action="/day/{{week[5]}}" >
+<button >Saturday </button>
+</form>
+<form action="/day/{{week[6]}}" >
+<button >Sunday  </button>
+</form>
+
+<!-- <form action="/day/{{day.date}}" >
+<button >На сьогодні</button>
+</form> -->
+
+</body>
+</html>

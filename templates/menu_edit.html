@@ -17,7 +17,7 @@
   	{% endfor %}
   	</p>
 	   	
-   	<form action="/menu/edit/{{day.date}}" method="POST">
+   	<form action="/menu/edit/{{day.date}}?form=dish_lunch" method="POST">
 	    <select name="dish_lunch">
 	    {% for dish in dishes %}
 	        <option value="{{ dish.name }}">{{ dish.name }}</option>
@@ -26,7 +26,7 @@
 	    <button type="submit">Записати</button>
 	</form>
 	  
-	<form action="/menu/edit/{{day.date}}" method="POST">
+	<form action="/menu/edit/{{day.date}}?form=dish_lunch_delete" method="POST">
 	    <select name="dish_lunch_delete">
 	    {% for dish in day.lunch %}
 	        <option value="{{ dish.name }}">{{ dish.name }}</option>
@@ -41,7 +41,7 @@
   	{% endfor %}
   	</p>
 		
-	<form action="/menu/edit/{{day.date}}" method="POST">
+	<form action="/menu/edit/{{day.date}}?form=dish_dinner" method="POST">
     	<select name="dish_dinner">
 	    {% for dish in dishes %}
 	        <option value="{{ dish.name }}">{{ dish.name}}</option>
@@ -50,7 +50,7 @@
 	    <button type="submit">Записати</button>
     </form>
 
-	<form action="/menu/edit/{{day.date}}" method="POST">
+	<form action="/menu/edit/{{day.date}}?form=dish_dinner_delete" method="POST">
 	    <select name="dish_dinner_delete">
 	    {% for dish in day.dinner %}
 	        <option value="{{ dish.name }}">{{ dish.name }}</option>

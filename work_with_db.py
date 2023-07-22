@@ -27,15 +27,8 @@ class Day():
 
     def get_ingredients_for_day(self, day):
         ingredients = {}
-        if self.lunch:
-            for dish in self.lunch:
-                for ingr in dish.ingredients:
-                    if ingr not in ingredients and ingr.ingredient.where_to_buy != "Delivery":
-                        ingredients[ingr] = ingr.hot_much_ingr
-                    else:
-                        ingredients[ingr] += "+" + ingr.hot_much_ingr
-        if self.dinner:
-            for dish in self.dinner:
+        for dishes in [self.lunch, self.dinner]:
+            for dish in dishes or []:
                 for ingr in dish.ingredients:
                     if ingr not in ingredients and ingr.ingredient.where_to_buy != "Delivery":
                         ingredients[ingr] = ingr.hot_much_ingr
@@ -45,10 +38,10 @@ class Day():
         return list(ingredients.items())
 
     def get_dish_objects(self, list_dishes):
-        return [ManageDish(dish_name).dish_obj for dish_name in list_dishes]
+        return [DishManager(dish_name).dish_obj for dish_name in list_dishes]
 
 
-class ManageDish():
+class DishManager():
     def __init__(self, dish_name):
         self.dish_obj = Dish.get(Dish.name == dish_name)
 
@@ -56,7 +49,7 @@ class ManageDish():
         return self.dish_obj.ingredients
 
 
-class ManageDay():
+class DayManager():
     def __init__(self, date):
         try:
             self.day_obj = DayMenu.get(DayMenu.date == date)
@@ -77,8 +70,8 @@ class ManageDay():
         week.sort()
         return week
 
-    def days_of_week(self):
-        return [ManageDay(day_date).day for day_date in self.make_week()]
+    def create_days_of_week(self):
+        return [DayManager(day_date).day for day_date in self.make_week()]
 
     def change_day(self, selected_dish, form):
         if form == 'dish_lunch':
