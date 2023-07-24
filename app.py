@@ -1,15 +1,23 @@
 import logging
 import datetime
 
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
+
+
+from flask_login import LoginManager, UserMixin, login_user
+
 
 from databases import Dish
 from work_with_db import DayManager, DishManager
-from decorators import error_catcher
+from decorators import error_catcher, login_required
 
-from confg import date_format
+from confg import date_format, confg_passwords
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = 'c42e8d7a0a1003456342385cb9e30b6b'
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 
 logging.basicConfig(format='%(levelname)s: %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S',
@@ -18,15 +26,16 @@ logging.basicConfig(format='%(levelname)s: %(asctime)s - %(message)s', datefmt='
 
 @app.route("/<int:weekday>/")
 @app.route("/")
-@error_catcher
+# @error_catcher
 def home(weekday=None):
+
     md = DayManager(datetime.date.today())
     if weekday:
         week = md.make_week()
         if 0 < weekday < 8:
             md = DayManager(week[weekday - 1])
-
     return render_template("main.html", day=md.day)
+
 
 @app.route("/day/<date>/")
 @error_catcher
@@ -59,7 +68,41 @@ def list_for_date(date):
     return render_template("list.html", ingr_list=ingr_list, day=md.day)
 
 
+class User(UserMixin):
+    def __init__(self, user_id):
+        self.id = user_id
+
+    def is_authenticated(self):
+        return True
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
+
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    return redirect(url_for("login"))
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        password = request.form["password"]
+        if password in confg_passwords:
+            user_obj = User(password)
+            login_user(user_obj)
+            path = request.args.get("next_url")
+            if not path:
+                return redirect(url_for("home"))
+            return redirect(path)
+
+    return render_template("login.html")
+
+
 @app.route("/menu/edit/<date>/", methods=["GET"])
+@login_required
 @error_catcher
 def menu_edit_get(date):
     md = DayManager(datetime.datetime.strptime(date, date_format).date())
@@ -76,5 +119,6 @@ def menu_edit_post(date):
 
     return redirect(f"/menu/edit/{date}")
 
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000,debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

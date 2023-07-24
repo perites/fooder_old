@@ -4,14 +4,14 @@ db = SqliteDatabase('fooder.db')
 
 
 class Dish(Model):
-    name = CharField()
+    name = CharField(unique=True)
 
     class Meta:
         database = db
 
 
 class Ingridient(Model):
-    name = CharField()
+    name = CharField(unique=True)
     where_to_buy = CharField(choices=(
         ('Bedronka', 'Bedronka'),
         ('Kredens', 'Kredens'),
@@ -24,7 +24,7 @@ class Ingridient(Model):
 
 class IngrToDish(Model):
     ingredient = ForeignKeyField(Ingridient)
-    hot_much_ingr = CharField()
+    how_much_ingr = CharField()
     dish = ForeignKeyField(Dish, backref="ingredients")
 
     class Meta:
@@ -38,3 +38,6 @@ class DayMenu(Model):
 
     class Meta:
         database = db
+
+
+# db.create_tables([Dish, Ingridient, IngrToDish, DayMenu])

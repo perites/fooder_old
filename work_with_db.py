@@ -31,9 +31,9 @@ class Day():
             for dish in dishes or []:
                 for ingr in dish.ingredients:
                     if ingr not in ingredients and ingr.ingredient.where_to_buy != "Delivery":
-                        ingredients[ingr] = ingr.hot_much_ingr
-                    else:
-                        ingredients[ingr] += "+" + ingr.hot_much_ingr
+                        ingredients[ingr] = ingr.how_much_ingr
+                    # else:
+                    #     ingredients[ingr] += "+" + ingr.how_much_ingr
 
         return list(ingredients.items())
 
@@ -128,11 +128,16 @@ class DayManager():
 
 # recept_for_weeks()
 
+# from databases import Ingridient, IngrToDish
+
+# Ingridient.drop_table()
+# Dish.drop_table()
+# IngrToDish.drop_table()
+# DayMenu.drop_table()
+
 
 # def see_all():
 #     ingrs = Ingridient.select()
-#     if not ingrs:
-#         print(ingrs)
 #     for ingr in ingrs:
 #         print(ingr.name, "--- ingr")
 
@@ -142,6 +147,20 @@ class DayManager():
 #         print("recept:")
 #         recept = dish.ingredients
 #         for ingr in recept:
-#             print(ingr.ingredient.name, ingr.hot_much_ingr)
+#             print(ingr.ingredient.name, ingr.how_much_ingr)
 
+
+# Ingridient.create(name="Гриби", where_to_buy="Bedronka")   # 'Bedronka', 'Kredens','Delivery'
+# Dish.create(name="Овочева зажарка з грибами")
+# Dish.create(name="М'ясо уда в соєвому соусі")
+# def create_dish(dish_name, ingnts):
+#     dish = Dish.get(Dish.name == dish_name)
+#     for ingr, how_much in ingnts.items():
+#         IngrToDish.create(ingredient=Ingridient.get(Ingridient.name == ingr), how_much_ingr=how_much, dish=dish)
+
+
+# dish_name = "Овочева зажарка з грибами"
+# ingnts = {"Морква": "2 шт", "Лук": "2 шт", "Гриби": "100 г"  # , "Кукурудза": "0.5 банки", "Салат": "2 листа"
+#           }
+# create_dish(dish_name, ingnts)
 # see_all()

@@ -2,12 +2,19 @@
 <html>
 <head>
 	<title>fooder</title>
+	
+
 </head>
 <body>
 
 <h1>{{day.date}}</h1>
 <h1>{{day.weekday}}</h1>
 <h3>week : {{day.week_number}}</h3>
+{% if day.weekday in ["Monday", "Friday", "Wednesday"] %}
+    <h2>Готуємо вечерю ! </h2>
+{% elif day.weekday in ["Tuesday", "Thursday"] %}
+	<h2>Готуємо cуп ! </h2>
+{% endif %}
 
 <h2>lunch : </h2>
 {% for dish in day.lunch %}
@@ -54,6 +61,15 @@
 <form action="/" >
 <button >На сьогодні</button>
 </form>
+
+
+
+
+
+
+
+
+
 
 </body>
 </html>
