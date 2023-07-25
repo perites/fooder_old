@@ -60,11 +60,11 @@ class DayManager():
 
     def make_week(self):
         week = []
-        week_number = self.day_obj.date.isocalendar().week
+        week_number = self.day_obj.date.isocalendar()[1]
 
         for n in range(-7, 8):
             new_date = self.day_obj.date + datetime.timedelta(days=n)
-            if new_date.isocalendar().week == week_number:
+            if new_date.isocalendar()[1] == week_number:
                 week.append(new_date)
 
         week.sort()
