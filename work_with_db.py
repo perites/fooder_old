@@ -8,7 +8,7 @@ class Day():
     def __init__(self, day_obj):
         self.date = day_obj.date
         self.week_number = day_obj.date.isocalendar()[1]
-        self.weekday = self.weekday_name(day_obj.date.isocalendar().weekday)
+        self.weekday = self.weekday_name(day_obj.date.isocalendar()[2])
         self.lunch = self.get_dish_objects(json.loads(day_obj.lunch))
         self.dinner = self.get_dish_objects(json.loads(day_obj.dinner))
         self.ingredients = self.get_ingredients_for_day(day_obj)
