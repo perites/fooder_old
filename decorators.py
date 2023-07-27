@@ -5,6 +5,8 @@ from functools import wraps
 from flask import redirect, url_for
 from flask_login import current_user
 
+from flask_login import LoginManager, UserMixin, login_user
+
 
 def error_catcher(func):
     @wraps(func)
@@ -29,6 +31,27 @@ def login_required(func):
             return redirect(f"/login?next_url={next_url}")
 
     return wrapper
+
+
+login_manager = LoginManager()
+
+
+class User(UserMixin):
+    def __init__(self, user_id):
+        self.id = user_id
+
+    def is_authenticated(self):
+        return True
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
+
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    return redirect(url_for("login"))
 
 
 # def function_name(func):

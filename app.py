@@ -4,19 +4,15 @@ import datetime
 from flask import Flask, render_template, request, redirect, url_for
 
 
-from flask_login import LoginManager, UserMixin, login_user
-
-
 from databases import Dish, Ingridient
-from work_with_db import DayManager, DishManager
-from decorators import error_catcher, login_required
+from work_with_db import DayManager, DishManager, IngrManager
+from decorators import error_catcher, login_required, login_manager, login_user, User
 
 from confg import date_format, confg_passwords
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = 'c42e8d7a0a1003456342385cb9e30b6b'
 
-login_manager = LoginManager()
 login_manager.init_app(app)
 
 
@@ -66,12 +62,11 @@ def dish(dish_name):
 def dish_add():
     if request.method == "POST":
         dish_name = request.form["dish_name"]
-        where_to_buy = request.form["where_to_buy"]
         try:
             Dish.get(Dish.name == dish_name)
         except Exception as e:
             print(e)
-            Dish.create(name=dish_name, where_to_buy=where_to_buy)
+            Dish.create(name=dish_name)
         return redirect(f"/dish/edit/{dish_name}")
 
     return render_template("dish_add.html")
@@ -79,13 +74,22 @@ def dish_add():
 
 @app.route("/dish/edit/<dish_name>", methods=["GET", "POST"])
 @login_required
-# @error_catcher
+@error_catcher
 def dish_edit(dish_name):
 
     if request.method == "POST":
         dish = DishManager(dish_name)
         ingr = request.args.get("ingr")
         if not ingr:
+            if request.args.get("change_name"):
+                new_name = request.form["new_name"]
+                dish.change_name(new_name)
+                return redirect(f"/dish/edit/{dish.dish_obj.name}")
+
+            elif request.args.get("delete"):
+                dish.delete_dish()
+                return redirect(url_for("home"))
+
             ingr = request.form["add_ingr"]
             amount = request.form["amount"]
             dish.add_ingridient(ingr=ingr, amount=amount)
@@ -111,22 +115,34 @@ def list_for_date(date):
     return render_template("list.html", ingr_list=ingr_list, day=md.day)
 
 
-class User(UserMixin):
-    def __init__(self, user_id):
-        self.id = user_id
+@app.route("/ingredients/edit/", methods=["GET", "POST"])
+@login_required
+@error_catcher
+def edit_ingredients():
+    if request.method == "POST":
+        ingr = request.args.get("ingr")
+        if not ingr:
+            name = request.form["name"]
+            where_to_buy = request.form["where_to_buy"]
+            Ingridient.create(name=name, where_to_buy=where_to_buy)
+            return redirect("/ingredients/edit/")
 
-    def is_authenticated(self):
-        return True
+        ingr = IngrManager(ingr)
+        if request.args.get("delete"):
+            ingr.delete_ingr()
+            return redirect("/ingredients/edit/")
 
+        elif request.args.get("new_name"):
+            new_name = request.form["new_name"]
+            ingr.change_name(new_name)
+            return redirect("/ingredients/edit/")
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User(user_id)
+        elif request.args.get("where_to_buy"):
+            where_to_buy = request.form["where_to_buy"]
+            ingr.change_where_to_buy(where_to_buy)
+            return redirect("/ingredients/edit/")
 
-
-@login_manager.unauthorized_handler
-def unauthorized():
-    return redirect(url_for("login"))
+    return render_template("ingrs_edit.html", ingrs=Ingridient.select().order_by(Ingridient.name))
 
 
 @app.route("/login", methods=["GET", "POST"])

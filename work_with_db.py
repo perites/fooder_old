@@ -6,6 +6,7 @@ from databases import DayMenu, Dish, IngrToDish, Ingridient
 
 class Day():
     def __init__(self, day_obj):
+        self.day_obj = day_obj
         self.date = day_obj.date
         self.week_number = day_obj.date.isocalendar()[1]
         self.weekday = self.weekday_name(day_obj.date.isocalendar()[2])
@@ -38,7 +39,32 @@ class Day():
         return list(ingredients.items())
 
     def get_dish_objects(self, list_dishes):
-        return [DishManager(dish_name).dish_obj for dish_name in list_dishes]
+        answer = []
+        for dish_name in list_dishes:
+            try:
+                answer.append(Dish.get(Dish.name == dish_name))
+            except Exception:
+                print("Probaly deleted", dish_name)
+
+        return answer
+
+
+class IngrManager():
+    def __init__(self, ingr_name):
+        self.ingr_obj = Ingridient.get(Ingridient.name == ingr_name)
+
+    def delete_ingr(self):
+        for recept in IngrToDish.select().where(IngrToDish.ingredient == self.ingr_obj):
+            recept.delete_instance()
+        self.ingr_obj.delete_instance()
+
+    def change_name(self, new_name):
+        self.ingr_obj.name = new_name
+        self.ingr_obj.save()
+
+    def change_where_to_buy(self, where_to_buy):
+        self.ingr_obj.where_to_buy = where_to_buy
+        self.ingr_obj.save()
 
 
 class DishManager():
@@ -59,11 +85,15 @@ class DishManager():
         ingr_to_change.how_much_ingr = amount
         ingr_to_change.save()
 
-        # x = IngrToDish.get(IngrToDish.ingredient == ingr, IngrToDish.dish == self.dish_obj)
-        # print(x.dish.name)
-        # for xx in x.ingredients:
-        #     print(xx.ingredient.name)
-        #     print(xx.how_much_ingr)
+    def change_name(self, new_name):
+        self.dish_obj.name = new_name
+        self.dish_obj.save()
+
+    def delete_dish(self):
+        for recept in IngrToDish.select().where(IngrToDish.dish == self.dish_obj):
+            recept.delete_instance()
+
+        self.dish_obj.delete_instance()
 
     def get_ingredients(self):
         return self.dish_obj.ingredients

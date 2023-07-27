@@ -5,7 +5,13 @@
 </head>
 <body>
 <h1>Ingredients for {{dish.dish_obj.name}}</h1>
-
+		<form action="/dish/edit/{{dish.dish_obj.name}}?change_name=T" method="POST" > 
+			<input name="new_name" required>
+			<button type="submit">Змінити назву</button>
+		</form>
+		<form action="/dish/edit/{{dish.dish_obj.name}}?delete=T" method="POST" > 
+			<button type="submit">Видалити блюдо</button>
+		</form>
 
 {% for ingredient in dish.get_ingredients() %}
 
@@ -33,6 +39,10 @@
 	    <button type="submit">Додати</button>
 	</form>
 
+
+<form action="/" >
+<button >На сьогодні</button>
+</form>
 
 </body>
 </html>

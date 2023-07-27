@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>fooder</title>
+</head>
+<body>
+
+
+
+
+<form action="/ingredients/edit" method="POST">
+		<input name="name" required>
+	 	
+   		<select name="where_to_buy" required>
+       		 <option value="Bedronka">Bedronka</option>
+        	<option value="Delivery">Delivery</option>
+        	<option value="Kredens">Kredens</option>
+	    </select>
+	    <button type="submit">Додати інгредіент</button>
+	</form>
+
+
+
+
+{% for ingredient in ingrs %}
+	<h3>{{ingredient.name}} купувати в {{ingredient.where_to_buy}}</h3>
+	<form action="/ingredients/edit?ingr={{ingredient.name}}&new_name=T" method="POST" > 
+		<input name="new_name" required>
+		<button type="submit">Змінити назву</button>
+	</form>
+	<form action="/ingredients/edit?ingr={{ingredient.name}}&where_to_buy=T" method="POST" >
+    <select name="where_to_buy" required>
+        <option value="Bedronka">Bedronka</option>
+        <option value="Delivery">Delivery</option>
+        <option value="Kredens">Kredens</option>
+	    </select>
+		<button type="submit">Змінити де купувати</button>
+	</form>
+	<form action="/ingredients/edit?ingr={{ingredient.name}}&delete=T" method="POST" > 
+		<button type="submit">Видалити</button>
+	</form>
+
+
+
+{% endfor %}  
+
+<form action="/" >
+<button >На сьогодні</button>
+</form>
+
+</body>
+</html>
