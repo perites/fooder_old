@@ -5,9 +5,15 @@
 </head>
 <body>
 
-{% for ingredient in ingr %}
+<h1>Ingredients for {{dish.dish_obj.name}}</h1>
+{% for ingredient in dish.get_ingredients() %}
 	<h3>{{ingredient.ingredient.name}} : {{ingredient.how_much_ingr}}</h3>	
 {% endfor %}
+
+
+<form action="/dish/edit/{{dish.dish_obj.name}}" >
+<button >Edit </button>
+</form>
 
 </body>
 </html>

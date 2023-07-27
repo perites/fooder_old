@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>fooder</title>
+</head>
+<body>
+<h1>Ingredients for {{dish.dish_obj.name}}</h1>
+
+
+{% for ingredient in dish.get_ingredients() %}
+
+  		<h3>{{ingredient.ingredient.name}} : {{ingredient.how_much_ingr}}</h3>
+  		<form action="/dish/edit/{{dish.dish_obj.name}}?ingr={{ingredient.ingredient.name}}&delete=T" method="POST" > 
+			<button type="submit">Видалити</button>
+		</form>
+
+		<form action="/dish/edit/{{dish.dish_obj.name}}?ingr={{ingredient.ingredient.name}}" method="POST" > 
+			<input name="amount" required>
+			<button type="submit">Записати</button>
+		</form>
+  		
+{% endfor %}  	
+	   	
+
+	  
+	<form action="/dish/edit/{{dish.dish_obj.name}}" method="POST">
+	    <select name="add_ingr">
+	    {% for ingredient in ingrds %}
+	        <option value="{{ingredient.name}}">{{ingredient.name}}</option>
+	    {% endfor %}
+	    </select>
+	    	<input name="amount" required>
+	    <button type="submit">Додати</button>
+	</form>
+
+
+</body>
+</html>
+
+
+

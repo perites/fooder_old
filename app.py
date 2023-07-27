@@ -7,7 +7,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_login import LoginManager, UserMixin, login_user
 
 
-from databases import Dish
+from databases import Dish, Ingridient
 from work_with_db import DayManager, DishManager
 from decorators import error_catcher, login_required
 
@@ -26,7 +26,7 @@ logging.basicConfig(format='%(levelname)s: %(asctime)s - %(message)s', datefmt='
 
 @app.route("/<int:weekday>/")
 @app.route("/")
-# @error_catcher
+@error_catcher
 def home(weekday=None):
 
     md = DayManager(datetime.date.today())
@@ -57,7 +57,50 @@ def menu(date):
 @error_catcher
 def dish(dish_name):
     dish = DishManager(dish_name)
-    return render_template("dish.html", ingr=dish.get_ingredients())
+    return render_template("dish.html", dish=dish)
+
+
+@app.route("/dish/add/", methods=["GET", "POST"])
+@login_required
+@error_catcher
+def dish_add():
+    if request.method == "POST":
+        dish_name = request.form["dish_name"]
+        where_to_buy = request.form["where_to_buy"]
+        try:
+            Dish.get(Dish.name == dish_name)
+        except Exception as e:
+            print(e)
+            Dish.create(name=dish_name, where_to_buy=where_to_buy)
+        return redirect(f"/dish/edit/{dish_name}")
+
+    return render_template("dish_add.html")
+
+
+@app.route("/dish/edit/<dish_name>", methods=["GET", "POST"])
+@login_required
+# @error_catcher
+def dish_edit(dish_name):
+
+    if request.method == "POST":
+        dish = DishManager(dish_name)
+        ingr = request.args.get("ingr")
+        if not ingr:
+            ingr = request.form["add_ingr"]
+            amount = request.form["amount"]
+            dish.add_ingridient(ingr=ingr, amount=amount)
+            return redirect(f"/dish/edit/{dish.dish_obj.name}")
+
+        if request.args.get("delete"):
+            dish.delete_ingr(ingr=ingr)
+            return redirect(f"/dish/edit/{dish_name}")
+        else:
+            amount = request.form["amount"]
+            dish.change_amount(amount=amount, ingr=ingr)
+            return redirect(f"/dish/edit/{dish_name}")
+
+    dish = DishManager(dish_name)
+    return render_template("dish_edit.html", dish=dish, ingrds=Ingridient.select())
 
 
 @app.route("/list/<date>/")

@@ -1,7 +1,7 @@
 import datetime
 import json
 
-from databases import DayMenu, Dish
+from databases import DayMenu, Dish, IngrToDish, Ingridient
 
 
 class Day():
@@ -44,6 +44,26 @@ class Day():
 class DishManager():
     def __init__(self, dish_name):
         self.dish_obj = Dish.get(Dish.name == dish_name)
+
+    def add_ingridient(self, ingr, amount):
+        IngrToDish.create(ingredient=Ingridient.get(Ingridient.name == ingr), how_much_ingr=amount, dish=self.dish_obj)
+
+    def delete_ingr(self, ingr):
+        ingr = Ingridient.get(Ingridient.name == ingr)
+        ingr_to_delete = IngrToDish.get(IngrToDish.ingredient == ingr, IngrToDish.dish == self.dish_obj)
+        ingr_to_delete.delete_instance()
+
+    def change_amount(self, ingr, amount):
+        ingr = Ingridient.get(Ingridient.name == ingr)
+        ingr_to_change = IngrToDish.get(IngrToDish.ingredient == ingr, IngrToDish.dish == self.dish_obj)
+        ingr_to_change.how_much_ingr = amount
+        ingr_to_change.save()
+
+        # x = IngrToDish.get(IngrToDish.ingredient == ingr, IngrToDish.dish == self.dish_obj)
+        # print(x.dish.name)
+        # for xx in x.ingredients:
+        #     print(xx.ingredient.name)
+        #     print(xx.how_much_ingr)
 
     def get_ingredients(self):
         return self.dish_obj.ingredients
