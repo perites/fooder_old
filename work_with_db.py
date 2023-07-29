@@ -12,8 +12,8 @@ class Day():
         self.date = day_obj.date
         self.week_number = day_obj.date.isocalendar()[1]
         self.weekday = self.weekday_name(day_obj.date.isocalendar()[2])
-        self.lunch = self.get_dish_objects(json.loads(day_obj.lunch))
-        self.dinner = self.get_dish_objects(json.loads(day_obj.dinner))
+        self.lunch = self.get_dish_objects(json.loads(day_obj.lunch), "l")
+        self.dinner = self.get_dish_objects(json.loads(day_obj.dinner), "d")
         self.ingredients = self.get_ingredients_for_day(day_obj)
 
     def weekday_name(self, weekday_number):
@@ -33,20 +33,35 @@ class Day():
         for dishes in [self.lunch, self.dinner]:
             for dish in dishes or []:
                 for ingr in dish.ingredients:
-                    if ingr not in ingredients and ingr.ingredient.where_to_buy != "Delivery":
-                        ingredients[ingr] = ingr.how_much_ingr
-                    # else:
-                    #     ingredients[ingr] += "+" + ingr.how_much_ingr  # не впевнений чи залишати чи видалати, залижить
+                    if ingr.ingredient.name not in ingredients and ingr.ingredient.where_to_buy != "Delivery":
+                        ingredient = {}
+                        ingredient["name"] = ingr.ingredient.name
+                        ingredient["amount"] = [ingr.how_much_ingr]
+                        ingredients[ingr.ingredient.name] = ingredient
+                    elif ingr.ingredient.name in ingredients:
+                        ingredients[ingr.ingredient.name]["amount"].append(ingr.how_much_ingr)
 
-        return list(ingredients.items())
+        for k, v in ingredients.items():
+            ingredients[k]["amount"] = "+".join(v["amount"])
+        return list(ingredients.values())
 
-    def get_dish_objects(self, list_dishes):
+    def get_dish_objects(self, list_dishes, time):
         answer = []
         for dish_name in list_dishes:
             try:
                 answer.append(Dish.get(Dish.name == dish_name))
             except Dish.DoesNotExist:
-                logging.error(f"in get_dish_objects : Probaly deleted dish :", dish_name)
+                logging.error(f"in get_dish_objects : Probaly deleted dish : {dish_name}")
+                if time == 'l':
+                    lunch_dishes = json.loads(self.day_obj.lunch)
+                    lunch_dishes.remove(dish_name)
+                    self.day_obj.lunch = json.dumps(lunch_dishes)
+                elif time == "d":
+                    dinner_dishes = json.loads(self.day_obj.dinner)
+                    dinner_dishes.remove(dish_name)
+                    self.day_obj.dinner = json.dumps(dinner_dishes)
+
+                self.day_obj.save()
 
         return answer
 

@@ -107,7 +107,7 @@ def dish_edit(dish_name):
 
 
 @app.route("/list/<date>/")
-@error_catcher
+# @error_catcher
 def list_for_date(date):
     md = DayManager(datetime.datetime.strptime(date, date_format).date())
     ingr_list = [ingr for ingr in md.day.ingredients]
