@@ -64,8 +64,7 @@ def dish_add():
         dish_name = request.form["dish_name"]
         try:
             Dish.get(Dish.name == dish_name)
-        except Exception as e:
-            print(e)
+        except Dish.DoesNotExist:
             Dish.create(name=dish_name)
         return redirect(f"/dish/edit/{dish_name}")
 

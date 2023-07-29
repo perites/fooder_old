@@ -1,5 +1,7 @@
 import datetime
 import json
+import logging
+
 
 from databases import DayMenu, Dish, IngrToDish, Ingridient
 
@@ -34,7 +36,7 @@ class Day():
                     if ingr not in ingredients and ingr.ingredient.where_to_buy != "Delivery":
                         ingredients[ingr] = ingr.how_much_ingr
                     # else:
-                    #     ingredients[ingr] += "+" + ingr.how_much_ingr
+                    #     ingredients[ingr] += "+" + ingr.how_much_ingr  # не впевнений чи залишати чи видалати, залижить
 
         return list(ingredients.items())
 
@@ -43,8 +45,8 @@ class Day():
         for dish_name in list_dishes:
             try:
                 answer.append(Dish.get(Dish.name == dish_name))
-            except Exception:
-                print("Probaly deleted", dish_name)
+            except Dish.DoesNotExist:
+                logging.error(f"in get_dish_objects : Probaly deleted dish :", dish_name)
 
         return answer
 
@@ -145,72 +147,3 @@ class DayManager():
             self.day_obj.dinner = json.dumps(dinner_dishes)
 
         self.day_obj.save()
-
-
-# import random
-# def create_tetttt():
-#     dishes = ["mashed potato", "chicken", "salat", "kotlet"]
-#     for n in range(-4, 11):
-#         menu_for_day_l = [random.choice(dishes), random.choice(dishes)]
-#         menu_for_day_d = [random.choice(dishes), random.choice(dishes)]
-#         DayMenu.create(date=datetime.date.today() + datetime.timedelta(days=n), lunch=json.dumps(menu_for_day_l), dinner=json.dumps(menu_for_day_d))
-
-# create_tetttt()
-
-
-# def recept_for_weeks():
-#     week = []
-#     for x in DayMenu.select():
-#         if x.date not in week:
-#             print("\nnew week")
-#             week = ManageTables().make_week(x.date)
-
-#         date_format = "%Y-%m-%d"
-
-#         # if x.date == datetime.datetime.strptime("2023-07-21", date_format).date():
-#         #     lunch_dishes = json.loads(x.lunch)
-#         #     # lunch_dishes.pop(2)
-#         #     # lunch_dishes.pop(2)
-#         #     x.lunch = json.dumps(lunch_dishes)
-#         #     x.save()
-
-#         print("\nweekday : ", x.date.isocalendar().weekday, "\nmenu lunch:", x.lunch, "\nmenu dinner :", x.dinner)
-
-# recept_for_weeks()
-
-# from databases import Ingridient, IngrToDish
-
-# Ingridient.drop_table()
-# Dish.drop_table()
-# IngrToDish.drop_table()
-# DayMenu.drop_table()
-
-
-# def see_all():
-#     ingrs = Ingridient.select()
-#     for ingr in ingrs:
-#         print(ingr.name, "--- ingr")
-
-#     dishes = Dish.select()
-#     for dish in dishes:
-#         print("\n", dish.name, "--- dish")
-#         print("recept:")
-#         recept = dish.ingredients
-#         for ingr in recept:
-#             print(ingr.ingredient.name, ingr.how_much_ingr)
-
-
-# Ingridient.create(name="Гриби", where_to_buy="Bedronka")   # 'Bedronka', 'Kredens','Delivery'
-# Dish.create(name="Овочева зажарка з грибами")
-# Dish.create(name="М'ясо уда в соєвому соусі")
-# def create_dish(dish_name, ingnts):
-#     dish = Dish.get(Dish.name == dish_name)
-#     for ingr, how_much in ingnts.items():
-#         IngrToDish.create(ingredient=Ingridient.get(Ingridient.name == ingr), how_much_ingr=how_much, dish=dish)
-
-
-# dish_name = "Овочева зажарка з грибами"
-# ingnts = {"Морква": "2 шт", "Лук": "2 шт", "Гриби": "100 г"  # , "Кукурудза": "0.5 банки", "Салат": "2 листа"
-#           }
-# create_dish(dish_name, ingnts)
-# see_all()

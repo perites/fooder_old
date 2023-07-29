@@ -1,2 +1,2 @@
 date_format = "%Y-%m-%d"
-confg_passwords = ["SheNeV"]
+confg_passwords = ["Sc7JmiwH"]
