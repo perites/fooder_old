@@ -1,6 +1,6 @@
 from peewee import PostgresqlDatabase, Model, CharField, DateField, ForeignKeyField, TextField
 
-from confg import DATABASE_NAME,DATABASE_USER, DATABASE_PASSWORD, DATABASE_HOST, DATABASE_PORT
+from confg import DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD, DATABASE_HOST, DATABASE_PORT
 
 db = PostgresqlDatabase(DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD, host=DATABASE_HOST, port=DATABASE_PORT)
 
