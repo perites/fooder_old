@@ -41,5 +41,4 @@ class DayMenu(Model):
     class Meta:
         database = db
 
-
- db.create_tables([Dish, Ingridient, IngrToDish, DayMenu])
+db.create_tables([Dish, Ingridient, IngrToDish, DayMenu])
