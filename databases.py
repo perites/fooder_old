@@ -42,4 +42,4 @@ class DayMenu(Model):
         database = db
 
 
-# db.create_tables([Dish, Ingridient, IngrToDish, DayMenu])
+ db.create_tables([Dish, Ingridient, IngrToDish, DayMenu])
