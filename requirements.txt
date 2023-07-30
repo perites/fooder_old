@@ -1,3 +1,4 @@
 peewee
 flask
 flask_login
+psycopg2
