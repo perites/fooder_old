@@ -14,6 +14,7 @@ class Day():
         self.weekday = self.weekday_name(day_obj.date.isocalendar()[2])
         self.lunch = self.get_dish_objects(json.loads(day_obj.lunch), "l")
         self.dinner = self.get_dish_objects(json.loads(day_obj.dinner), "d")
+        self.deliverys = {}
         self.ingredients = self.get_ingredients_for_day(day_obj)
 
     def weekday_name(self, weekday_number):
@@ -41,6 +42,12 @@ class Day():
                     elif ingr.ingredient.name in ingredients:
                         ingredients[ingr.ingredient.name]["amount"].append(ingr.how_much_ingr)
 
+                    elif ingr.ingredient.where_to_buy == "Delivery":
+                        if dish.name in json.loads(self.day_obj.lunch):
+                            self.deliverys["lunch_delivery"] = {"delivery_name": dish.name, "link": ingr.ingredient.name}
+                        elif dish.name in json.loads(self.day_obj.dinner):
+                            self.deliverys["dinner_delivery"] = {"delivery_name": dish.name, "link": ingr.ingredient.name}
+
         for k, v in ingredients.items():
             ingredients[k]["amount"] = "+".join(v["amount"])
         return list(ingredients.values())
@@ -64,6 +71,17 @@ class Day():
                 self.day_obj.save()
 
         return answer
+
+    def to_json_for_api(self):
+        json_data = {"date": self.date,
+                     "weekday": self.weekday,
+                     "lunch": json.loads(self.day_obj.lunch),
+                     "dinner": json.loads(self.day_obj.dinner),
+                     "deliverys": self.deliverys,
+                     "ingredients": self.ingredients
+                     }
+
+        return json_data
 
 
 class IngrManager():

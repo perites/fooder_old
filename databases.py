@@ -4,6 +4,9 @@ from confg import DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD, DATABASE_HOST
 
 db = PostgresqlDatabase(DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD, host=DATABASE_HOST, port=DATABASE_PORT)
 
+# from peewee import SqliteDatabase
+# db = SqliteDatabase('fooder.db')
+
 
 class Dish(Model):
     name = CharField(unique=True)
