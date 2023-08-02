@@ -11,8 +11,6 @@ import functions
 
 from confg import date_format, confg_passwords
 
-import telegram_bot
-
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = 'c42e8d7a0a1003456342385cb9e30b6b'
