@@ -2,3 +2,6 @@ peewee
 flask
 flask_login
 psycopg2
+requests
+python-telegram-bot
+python-telegram-bot[job-queue]
