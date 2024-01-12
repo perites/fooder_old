@@ -1,14 +1,16 @@
 import logging
 import datetime
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 
 
 from databases import Dish, Ingridient
 from work_with_db import DayManager, DishManager, IngrManager
 from decorators import error_catcher, login_required, login_manager, login_user, User
+import functions
 
 from confg import date_format, confg_passwords
+
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = 'c42e8d7a0a1003456342385cb9e30b6b'
@@ -25,21 +27,28 @@ logging.basicConfig(format='%(levelname)s: %(asctime)s - %(message)s', datefmt='
 @error_catcher
 def home(weekday=None):
 
-    md = DayManager(datetime.date.today())
-    if weekday:
-        week = md.make_week()
-        if 0 < weekday < 8:
-            md = DayManager(week[weekday - 1])
+    md = functions.home(weekday)
+
     return render_template("main.html", day=md.day)
+
+
+@app.route("/api/")
+@error_catcher
+def home_api():
+
+    md = functions.home()
+    # md.day.to_json_for_api()
+
+    return jsonify(md.day.to_json_for_api())
 
 
 @app.route("/day/<date>/")
 @error_catcher
-def for_specific_date(date, weekday=None):
-    md = DayManager(datetime.datetime.strptime(date, date_format).date())
-    week = md.make_week()
+def for_specific_date(date):
 
-    return render_template("day_date.html", day=md.day, week=week)
+    md = DayManager(datetime.datetime.strptime(date, date_format).date())
+
+    return render_template("day_date.html", day=md.day, week=md.make_week())
 
 
 @app.route("/menu/<date>/")
