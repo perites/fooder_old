@@ -37,7 +37,6 @@ def home(weekday=None):
 def home_api():
 
     md = functions.home()
-    # md.day.to_json_for_api()
 
     return jsonify(md.day.to_json_for_api())
 
